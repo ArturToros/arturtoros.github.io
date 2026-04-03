@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artur Torosyan — Security Researcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #050810;
+  --bg: #080c18;
+  --bg-card: #0c1024;
+  --bg-card-hover: #101430;
+  --border: #1a1f3a;
+  --border-glow: #2a3a6a;
+  --text: #e4e8f4;
+  --text-secondary: #8891b0;
+  --text-muted: #4a5280;
+  --blue: #3b82f6;
+  --blue-bright: #60a5fa;
+  --blue-glow: rgba(59, 130, 246, 0.25);
+  --blue-glow-soft: rgba(59, 130, 246, 0.08);
+  --purple: #8b5cf6;
+  --purple-glow: rgba(139, 92, 246, 0.2);
+  --cyan: #22d3ee;
+  --cyan-glow: rgba(34, 211, 238, 0.15);
+  --green: #22c55e;
+  --green-dim: rgba(34, 197, 94, 0.15);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.12);
+  --orange: #f97316;
+  --gold: #fbbf24;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ---- STARFIELD BACKGROUND ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 15%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 55%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 75%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 35% 95%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 95% 25%, rgba(255,255,255,0.35) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ambient glow orbs */
+body::after {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: -100px;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(ellipse, rgba(59, 130, 246, 0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-purple {
+  position: fixed;
+  bottom: -300px;
+  right: -200px;
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- HERO ---- */
+.hero {
+  padding: 72px 0 56px;
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+@media (max-width: 640px) {
+  .hero { flex-direction: column; align-items: center; text-align: center; }
+}
+
+.hero-avatar {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid var(--border-glow);
+  box-shadow: 0 0 30px var(--blue-glow), 0 0 60px rgba(59, 130, 246, 0.08);
+  position: relative;
+}
+
+.hero-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1);
+  pointer-events: none;
+}
+
+.hero-content { flex: 1; }
+
+.hero-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(34, 211, 238, 0.06);
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(34, 211, 238, 0.15);
+}
+
+.hero-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--green), 0 0 16px rgba(34, 197, 94, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero h1 {
+  font-size: clamp(34px, 5vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.hero h1 .gradient {
+  background: linear-gradient(135deg, var(--blue-bright), var(--purple), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-bio {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 580px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.hero-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hero-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(12, 16, 36, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.hero-links a:hover {
+  border-color: var(--blue);
+  color: var(--blue-bright);
+  background: var(--blue-glow-soft);
+  box-shadow: 0 0 20px var(--blue-glow), inset 0 0 20px rgba(59, 130, 246, 0.03);
+  transform: translateY(-1px);
+}
+
+/* ---- STATS GRID ---- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 56px;
+}
+
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(20, 24, 50, 0.6) 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 16px;
+  text-align: center;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  opacity: 0.4;
+}
+
+.stat-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 4px 30px rgba(59, 130, 246, 0.06);
+  transform: translateY(-2px);
+}
+
+.stat-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-glow-blue { color: var(--blue-bright); text-shadow: 0 0 20px var(--blue-glow); }
+.stat-glow-gold { color: var(--gold); text-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+.stat-glow-red { color: var(--red); text-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+.stat-glow-green { color: var(--green); text-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ---- HIGHLIGHTS ---- */
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 56px;
+}
+
+@media (max-width: 768px) {
+  .highlights { grid-template-columns: 1fr; }
+}
+
+.highlight-card {
+  background: linear-gradient(160deg, var(--bg-card) 0%, rgba(16, 20, 48, 0.5) 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.highlight-card:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-2px);
+}
+
+.highlight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+.highlight-card.hl-gold::before { background: linear-gradient(90deg, var(--gold), var(--orange), transparent); }
+.highlight-card.hl-green::before { background: linear-gradient(90deg, var(--green), var(--cyan), transparent); }
+.highlight-card.hl-purple::before { background: linear-gradient(90deg, var(--purple), var(--blue), transparent); }
+
+.highlight-card.hl-gold:hover { box-shadow: 0 4px 30px rgba(251, 191, 36, 0.06); }
+.highlight-card.hl-green:hover { box-shadow: 0 4px 30px rgba(34, 197, 94, 0.06); }
+.highlight-card.hl-purple:hover { box-shadow: 0 4px 30px rgba(139, 92, 246, 0.06); }
+
+.hl-icon {
+  font-size: 26px;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.hl-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.hl-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ---- SECTION ---- */
+.section {
+  margin-bottom: 56px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--blue), transparent);
+}
+
+.section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ---- TABLE ---- */
+.table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--bg-card) 0%, rgba(8, 12, 24, 0.8) 100%);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead th {
+  text-align: left;
+  padding: 14px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid rgba(26, 31, 58, 0.5);
+  white-space: nowrap;
+}
+
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: var(--bg-card-hover); }
+tbody tr:last-child td { border-bottom: none; }
+
+.platform-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.platform-sherlock { background: rgba(139, 92, 246, 0.12); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
+.platform-c4 { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+.platform-cantina { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+.platform-codehawks { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+.platform-immunefi { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+.severity-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sev-critical { color: #f87171; text-shadow: 0 0 8px rgba(248, 113, 113, 0.3); }
+.sev-high { color: #fb923c; text-shadow: 0 0 8px rgba(251, 146, 60, 0.2); }
+.sev-medium { color: #fbbf24; }
+
+.rank-podium { color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+.rank-top10 { color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+.rust-tag {
+  color: var(--orange);
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(249, 115, 22, 0.1);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 6px;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+}
+
+/* ---- SKILLS ---- */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.skill-card {
+  background: linear-gradient(160deg, var(--bg-card) 0%, rgba(16, 20, 48, 0.4) 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  transition: all 0.25s;
+}
+
+.skill-card:hover {
+  border-color: var(--border-glow);
+}
+
+.skill-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.skill-items { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.skill-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.skill-tag:hover {
+  border-color: var(--blue);
+  color: var(--blue-bright);
+}
+
+/* ---- FOOTER ---- */
+.footer {
+  padding: 48px 0 40px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+}
+
+.footer-cta {
+  font-size: 17px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.footer-cta strong {
+  color: var(--text);
+}
+
+.footer-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.footer-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--blue-bright); }
+
+/* ---- ANIMATIONS ---- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim { animation: fadeUp 0.7s ease-out forwards; opacity: 0; }
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.12s; }
+.d3 { animation-delay: 0.2s; }
+.d4 { animation-delay: 0.28s; }
+.d5 { animation-delay: 0.36s; }
+.d6 { animation-delay: 0.44s; }
+.d7 { animation-delay: 0.52s; }
+
+/* ---- DIVIDER LINE ---- */
+.glow-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+  margin: 0 0 56px;
+}
+</style>
+</head>
+<body>
+<div class="orb-purple"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero anim d1">
+    <div class="hero-avatar">
+      <img src="https://pbs.twimg.com/profile_images/1875553498579472384/MKFnqBQx_400x400.jpg" alt="Artur Torosyan" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-content">
+      <div class="hero-label">Available for audits & engagements</div>
+      <h1>Artur <span class="gradient">Torosyan</span></h1>
+      <p class="hero-bio">
+        Security researcher specializing in web3 protocol audits with a strong finance and mathematics background. CFA Level I passed. Currently completing a Master's in Fintech, Finance, and Innovations — thesis: <em style="color: var(--text); font-style: italic;">Economic effects of hacker attacks on DeFi protocols: Analysis of losses, market reactions and recovery mechanisms.</em>
+      </p>
+      <p class="hero-bio" style="margin-top: -10px;">
+        Active in competitive smart contract auditing since 2024 across Code4rena, Sherlock, Cantina, CodeHawks, and Immunefi. Experience in both Solidity and Rust codebases. Open to audit opportunities, collaborations, and private engagements.
+      </p>
+      <div class="hero-links">
+        <a href="https://x.com/arturtoros" target="_blank">𝕏 @arturtoros</a>
+        <a href="https://github.com/ArturToros" target="_blank">◆ GitHub</a>
+        <a href="https://t.me/arturtorosyan9" target="_blank">✈ Telegram</a>
+        <a href="https://discordapp.com/users/arturtoros" target="_blank">◉ Discord</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-grid anim d2" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="stat-card">
+      <div class="stat-number stat-glow-gold">5</div>
+      <div class="stat-label">Podium Finishes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number stat-glow-red">1</div>
+      <div class="stat-label">Solo Critical</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number stat-glow-green">50+</div>
+      <div class="stat-label">Valid Findings</div>
+    </div>
+  </div>
+
+  <!-- HIGHLIGHTS -->
+  <div class="highlights anim d3">
+    <div class="highlight-card hl-gold">
+      <span class="hl-icon">🏆</span>
+      <div class="hl-title">5 Podium Finishes</div>
+      <div class="hl-desc">1× 2nd place (Code4rena Merkl), 4× 3rd place across Sherlock & Code4rena contests.</div>
+    </div>
+    <div class="highlight-card hl-green">
+      <span class="hl-icon">🎯</span>
+      <div class="hl-title">Solo Critical — Alchemix V3</div>
+      <div class="hl-desc">Solo Critical vulnerability in the Alchemix V3 Immunefi contest. Also found 6 Highs and 3 Mediums in the Cantina audit.</div>
+    </div>
+    <div class="highlight-card hl-purple">
+      <span class="hl-icon">🦀</span>
+      <div class="hl-title">Multi-Language Auditor</div>
+      <div class="hl-desc">Active in both Solidity and Rust codebases. Reflector V3 (Rust): 1 High, 2 Mediums — 3rd place.</div>
+    </div>
+  </div>
+
+  <div class="glow-line"></div>
+
+  <!-- BUG BOUNTIES -->
+  <section class="section anim d4">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--red-dim);">🛡</div>
+      <h2 class="section-title">Bug Bounties</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Date</th><th>Program</th><th>Severity</th><th>Platform</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--text-secondary);">Mar 2026</td>
+            <td>Private Program</td>
+            <td><span class="severity-tag sev-medium">● Medium</span></td>
+            <td><span class="platform-badge platform-immunefi">Immunefi</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CONTESTS -->
+  <section class="section anim d5">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--blue-glow-soft);">⚔</div>
+      <h2 class="section-title">Contest Results</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Date</th><th>Contest</th><th>Platform</th><th>Findings</th><th>Rank</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--text-secondary);">Nov 2025</td>
+            <td>Merkl</td>
+            <td><span class="platform-badge platform-c4">Code4rena</span></td>
+            <td><span class="severity-tag sev-medium">1M</span></td>
+            <td><span class="rank-podium">🥈 2nd</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Nov 2025</td>
+            <td>Inverse Finance — Junior Tranche</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-medium">1M</span></td>
+            <td><span class="rank-podium">🥉 3rd</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Nov 2025</td>
+            <td>Privacy Cash <span class="rust-tag">Rust</span></td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+            <td><span class="rank-top10">18th</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Oct 2025</td>
+            <td>Reflector V3 <span class="rust-tag">Rust</span></td>
+            <td><span class="platform-badge platform-c4">Code4rena</span></td>
+            <td><span class="severity-tag sev-high">1H</span> <span class="severity-tag sev-medium">2M</span></td>
+            <td><span class="rank-podium">🥉 3rd</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Oct 2025</td>
+            <td>Alchemix V3</td>
+            <td><span class="platform-badge platform-immunefi">Immunefi</span></td>
+            <td><span class="severity-tag sev-critical">1C ✦Solo</span> <span class="severity-tag sev-high">1H</span></td>
+            <td><span class="rank-top10">9th</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Oct 2025</td>
+            <td>Index Fun Order Book</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Sep 2025</td>
+            <td>Rezerve Money</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span> <span class="severity-tag sev-medium">2M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Aug 2025</td>
+            <td>USG — Tangent</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span> <span class="severity-tag sev-medium">2M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Jul 2025</td>
+            <td>Succinct Network</td>
+            <td><span class="platform-badge platform-cantina">Cantina</span></td>
+            <td><span class="severity-tag sev-high">1H</span> <span class="severity-tag sev-medium">1M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Jun 2025</td>
+            <td>Superfluid Locker System</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-medium">1M</span></td>
+            <td><span class="rank-top10">6th</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">May 2025</td>
+            <td>LayerEdge — Staking</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-medium">1M</span></td>
+            <td><span class="rank-top10">7th</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">May 2025</td>
+            <td>Alchemix V3</td>
+            <td><span class="platform-badge platform-cantina">Cantina</span></td>
+            <td><span class="severity-tag sev-high">6H</span> <span class="severity-tag sev-medium">3M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Apr 2025</td>
+            <td>Aegis.im YUSD</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-medium">1M</span></td>
+            <td><span class="rank-podium">🥉 3rd</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Mar 2025</td>
+            <td>Nudge.xyz</td>
+            <td><span class="platform-badge platform-c4">Code4rena</span></td>
+            <td><span class="severity-tag sev-medium">1M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Mar 2025</td>
+            <td>Crestal Network</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Mar 2025</td>
+            <td>Symmio — Staking &amp; Vesting</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span> <span class="severity-tag sev-medium">1M</span></td>
+            <td><span class="rank-top10">10th</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Feb 2025</td>
+            <td>RAAC</td>
+            <td><span class="platform-badge platform-codehawks">CodeHawks</span></td>
+            <td><span class="severity-tag sev-high">3H</span> <span class="severity-tag sev-medium">2M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Jan 2025</td>
+            <td>Plaza Finance</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Dec 2024</td>
+            <td>SecondSwap</td>
+            <td><span class="platform-badge platform-c4">Code4rena</span></td>
+            <td><span class="severity-tag sev-high">1H</span> <span class="severity-tag sev-medium">2M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Dec 2024</td>
+            <td>Lambo.win</td>
+            <td><span class="platform-badge platform-c4">Code4rena</span></td>
+            <td><span class="severity-tag sev-high">1H</span> <span class="severity-tag sev-medium">1M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Nov 2024</td>
+            <td>Ethos Network Financial Contracts</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Nov 2024</td>
+            <td>Nouns DAO — Auction Streams</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+            <td><span class="rank-top10">22nd</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Nov 2024</td>
+            <td>Telcoin Update #2</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+            <td><span class="rank-top10">10th</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Oct 2024</td>
+            <td>Gamma Brevis Rewarder</td>
+            <td><span class="platform-badge platform-sherlock">Sherlock</span></td>
+            <td><span class="severity-tag sev-high">1H</span></td>
+            <td><span class="rank-podium">🥉 3rd</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Sep 2024</td>
+            <td>Royco Protocol</td>
+            <td><span class="platform-badge platform-cantina">Cantina</span></td>
+            <td><span class="severity-tag sev-high">2H</span> <span class="severity-tag sev-medium">1M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Aug 2024</td>
+            <td>Fjord Token Staking</td>
+            <td><span class="platform-badge platform-codehawks">CodeHawks</span></td>
+            <td><span class="severity-tag sev-medium">1M</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-secondary);">Aug 2024</td>
+            <td>Basin</td>
+            <td><span class="platform-badge platform-c4">Code4rena</span></td>
+            <td><span class="severity-tag sev-high">1H</span></td>
+            <td><span style="color: var(--text-muted);">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="footer anim d7">
+    <p class="footer-cta">Open to <strong>private audits</strong>, <strong>collaborations</strong>, and <strong>security engagements</strong>.</p>
+    <p class="footer-sub">Artur Torosyan · Sofia, Bulgaria · 2026</p>
+    <div class="footer-links">
+      <a href="https://x.com/arturtoros" target="_blank">Twitter/X</a>
+      <a href="https://github.com/ArturToros" target="_blank">GitHub</a>
+      <a href="https://t.me/arturtorosyan9" target="_blank">Telegram</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
